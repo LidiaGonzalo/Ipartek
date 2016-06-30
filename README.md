@@ -1,0 +1,2 @@
+# Ipartek
+ejercicios de clase
