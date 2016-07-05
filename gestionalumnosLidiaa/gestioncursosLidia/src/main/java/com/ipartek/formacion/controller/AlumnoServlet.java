@@ -12,20 +12,24 @@ import javax.servlet.http.HttpServletResponse;
 import com.ipartek.formacion.controller.exception.AlumnoError;
 import com.ipartek.formacion.pojo.Alumno;
 import com.ipartek.formacion.pojo.Curso;
+import com.ipartek.formacion.pojo.Idioma;
 import com.ipartek.formacion.pojo.exception.CandidatoException;
 import com.ipartek.formacion.service.AlumnoService;
 import com.ipartek.formacion.service.AlumnoServiceImp;
 import com.ipartek.formacion.service.CursoService;
 import com.ipartek.formacion.service.CursoServiceImp;
+import com.ipartek.formacion.service.Util;
 
 /**
  * Servlet implementation class AlumnoServlet
  */
+
 public class AlumnoServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	 private int id = -1;
 	 private RequestDispatcher rd = null;
-	 private AlumnoService aService = new AlumnoServiceImp();
+	 private AlumnoService aService = AlumnoServiceImp.getInstance();
+	 private CursoService cService=new CursoServiceImp();//lista de cursos
 	 private List<Alumno> alumnos = null;
 	 private Alumno alumno = null;   
 	 private int operacion = -1;
@@ -36,9 +40,10 @@ public class AlumnoServlet extends HttpServlet {
 		try{
 			
 			recogerId(request);
+			request.setAttribute(Constantes.ATT_LISTADO_CURSOS, aService.getAll());//cada vez q el flujoi d la navegac lleve a la pag alumno, lista disponible d cursos
 			if(id < 0){//REDIGIRIMOS PARA UN CREATE
 				rd = request.getRequestDispatcher(Constantes.JSP_ALUMNO);
-			}else{//REDIGIMOS PARA UNA UPDATE
+			}else{//REDIRIGIMOS PARA UNA UPDATE
 				getById(request);
 			}
 			
@@ -49,12 +54,15 @@ public class AlumnoServlet extends HttpServlet {
 	}
 
 	private void recogerId(HttpServletRequest request) {
-		id = Integer.parseInt(request.getParameter(Constantes.PAR_CODIGO));
+		if(Util.tryParseInt(request.getParameter(Constantes.PAR_CODIGO))){
+			id = Integer.parseInt(request.getParameter(Constantes.PAR_CODIGO));
+		}
 	}
 
 	private void getAll(HttpServletRequest request) {
 		alumnos = aService.getAll();
-		request.setAttribute(Constantes.ATT_LISTADO_CURSOS, alumnos);
+		System.out.println(alumnos.size());
+		request.setAttribute(Constantes.ATT_LISTADO_ALUMNOS, alumnos);
 		rd = request.getRequestDispatcher(Constantes.JSP_LISTADO_ALUMNOS);
 	}
 
@@ -70,7 +78,9 @@ public class AlumnoServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String op = request.getParameter(Constantes.PAR_OPERACION);
 		try {
+			if(Util.tryParseInt(op)){
 			operacion = Integer.parseInt(op);
+			}//añadir un else ??
 			recogerId(request);
 			switch (operacion) {
 			case Constantes.OP_CREATE:
@@ -130,11 +140,22 @@ public class AlumnoServlet extends HttpServlet {
 		String nombre = request.getParameter(Constantes.PAR_NOMBRE);
 		String dni = request.getParameter(Constantes.PAR_DNI);
 		String apellidos = request.getParameter(Constantes.PAR_APELLIDOS);
+		String []idiomas=request.getParameterValues(Constantes.PAR_IDIOMA);//idioma lista de enumerarion
+		List<Idioma>idi=Util.parseIdioma(idiomas);//CLASE UTIL parseos
+		String idCurso=request.getParameter(Constantes.PAR_CURSO);
+		String genero=request.getParameter(Constantes.PAR_GENERO);
+		Curso curso=new Curso();
+		curso.setCodigo(Integer.parseInt(idCurso));
 		alumno.setCodigo(id);
 		alumno.setNombre(nombre);
 		alumno.setApellidos(apellidos);
 		alumno.setDni(dni);
+		//añadir genero,curso e idioma
+		alumno.setIdiomas(idi);
+		alumno.setCurso(curso);
+		alumno.setGenero(Util.parseGenero(genero));
 		
 	}
 
 }
+

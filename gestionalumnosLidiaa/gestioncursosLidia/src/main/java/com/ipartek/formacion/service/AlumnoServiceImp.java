@@ -10,6 +10,9 @@ import com.ipartek.formacion.pojo.exception.CandidatoException;
 import com.ipartek.formacion.service.exceptions.AlumnoServiceException;
 
 public class AlumnoServiceImp implements AlumnoService{
+	/*SINGLETON:Patrón para controlar q sólo existe una instancia de esa clase, en toda la ejecución.
+	 generalmente sin atributos. Ej:tener una sola conex de bbdd y que todo el mundo tire de ella.*/
+	private static AlumnoServiceImp INSTANCE =null;
 	private List<Alumno> alumnos;
 	private static int i = 1;
 	private void init() {
@@ -56,10 +59,30 @@ public class AlumnoServiceImp implements AlumnoService{
 		}
 
 	}
-	public AlumnoServiceImp(){
+	//SINGLETON
+		private AlumnoServiceImp(){
+			this.alumnos = new ArrayList<Alumno>();
+			init();
+		}
+		public static AlumnoServiceImp getInstance(){
+			if(INSTANCE==null){
+				createInstance();
+			}
+			return INSTANCE;//objeto de tipo alumnoServiceImp
+		}
+		private synchronized static void createInstance(){
+			if(INSTANCE==null){
+				INSTANCE=new AlumnoServiceImp();
+			}
+		}
+		/*public AlumnoServiceImp(){
+			this.alumnos = new ArrayList<Alumno>();
+			init();
+		}*/
+	/*public AlumnoServiceImp(){
 		this.alumnos = new ArrayList<Alumno>();
 		init();
-	}
+	}*/
 	
 	private static Curso crearCursoAlumno(){
 		Curso curso = null;
@@ -139,6 +162,12 @@ public class AlumnoServiceImp implements AlumnoService{
 		
 		return alumno;
 	}
+	//para no dejar clonar cosas
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			
+			throw new CloneNotSupportedException();
+		}
 }
 
 

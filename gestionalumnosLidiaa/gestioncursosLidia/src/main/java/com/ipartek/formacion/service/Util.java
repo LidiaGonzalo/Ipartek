@@ -1,5 +1,11 @@
 package com.ipartek.formacion.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.ipartek.formacion.pojo.Genero;
+import com.ipartek.formacion.pojo.Idioma;
+
 public class Util {
 	private static final int LONGITUD_DNI = 9;
 	public static boolean validarDni(String dni){
@@ -19,5 +25,42 @@ public class Util {
 		final char [] letras = {'T', 'R', 'W', 'A', 'G', 'M', 'Y', 'F', 'P', 'D', 'X', 'B', 'N', 'Z', 'S', 'Q', 'V', 'H', 'L', 'C', 'K', 'E', 'T'};
 		letra = letras[nDni % letras.length];
 		return letra;
+	}
+	public static List<Idioma>parseIdioma(String[]idiomas){
+		List<Idioma>aux=null;
+		aux=new ArrayList<Idioma>();
+		for(int i=0;i<idiomas.length;i++){
+			Idioma idioma=Idioma.CASTELLANO;
+			int codigoIdioma=Integer.parseInt(idiomas[i]);
+			
+			if(codigoIdioma==Idioma.EUSKERA.getCodigo()){//SWITCH??
+				idioma=Idioma.EUSKERA;
+			}else{
+				if(codigoIdioma==Idioma.INGLES.getCodigo()){
+					idioma=Idioma.INGLES;
+				}
+			}
+			aux.add(idioma);
+		}
+		return aux;
+	}
+	public static Genero parseGenero(String genero){
+		Genero aux=Genero.MASCULINO;
+		int codigo=Integer.parseInt(genero);
+		if(codigo==Genero.FEMENINO.getCodigo()){
+			aux=Genero.FEMENINO;
+		}
+		return aux;
+	}
+	//método intentar convertir,saber si se puede o no
+	public static boolean tryParseInt(String cadena){
+		boolean exito=true;
+		int numero;
+		try{
+		numero=Integer.parseInt(cadena);
+		}catch(NumberFormatException e){
+			exito=false;
+		}
+		return exito;
 	}
 }
